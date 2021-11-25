@@ -34,7 +34,8 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('task-definition.json')                      // task-definition
             .mockReturnValueOnce('cluster-789')                               // cluster
             .mockReturnValueOnce('1')                                         // count
-            .mockReturnValueOnce('amazon-ecs-run-task-for-github-actions');   // started-by
+            .mockReturnValueOnce('amazon-ecs-run-task-for-github-actions')    // started-by
+            .mockReturnValueOnce('{"launchType":"FARGATE"}')                  // custom-args
 
         process.env = Object.assign(process.env, { GITHUB_WORKSPACE: __dirname });
 
@@ -130,9 +131,36 @@ describe('Deploy to ECS', () => {
             cluster: 'cluster-789',
             taskDefinition: 'task:def:arn',
             count: '1',
-            startedBy: 'amazon-ecs-run-task-for-github-actions'
+            startedBy: 'amazon-ecs-run-task-for-github-actions',
+            launchType: "FARGATE"
         });
         expect(mockEcsWaiter).toHaveBeenCalledTimes(0);
+        expect(core.setOutput).toBeCalledWith('task-arn', ['arn:aws:ecs:fake-region:account_id:task/arn']);
+    });
+
+    test('does not include custom args when none are given', async () => {
+        core.getInput = jest
+            .fn()
+            .mockReturnValueOnce('task-definition.json')                      // task-definition
+            .mockReturnValueOnce('cluster-789')                               // cluster
+            .mockReturnValueOnce('1')                                         // count
+            .mockReturnValueOnce('amazon-ecs-run-task-for-github-actions')    // started-by
+            .mockReturnValueOnce('')                                          // custom-args
+            .mockReturnValueOnce('true');                                     // wait-for-finish
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+
+        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family'});
+        expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
+        expect(mockRunTasks).toHaveBeenNthCalledWith(1, {
+            cluster: 'cluster-789',
+            taskDefinition: 'task:def:arn',
+            count: '1',
+            startedBy: 'amazon-ecs-run-task-for-github-actions'
+
+        });
+        expect(mockEcsWaiter).toHaveBeenCalledTimes(1);
         expect(core.setOutput).toBeCalledWith('task-arn', ['arn:aws:ecs:fake-region:account_id:task/arn']);
     });
 
@@ -143,6 +171,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('cluster-789')                               // cluster
             .mockReturnValueOnce('1')                                         // count
             .mockReturnValueOnce('amazon-ecs-run-task-for-github-actions')    // started-by
+            .mockReturnValueOnce('{"launchType":"FARGATE"}')                  // custom-args
             .mockReturnValueOnce('true');                                     // wait-for-finish
 
         await run();

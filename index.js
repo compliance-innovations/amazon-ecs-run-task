@@ -125,7 +125,7 @@ async function run() {
       count: count,
       startedBy: startedBy
     }
-    if (command !== null) {
+    if (command.length > 0 && containerName.length > 0) {
       runTaskArgs.overrides = { containerOverrides: [{ name: containerName, command: command.split(' ')}]}
     }
 

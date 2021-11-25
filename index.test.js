@@ -148,7 +148,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('1')                                         // count
             .mockReturnValueOnce('amazon-ecs-run-task-for-github-actions')    // started-by
             .mockReturnValueOnce('container-name')                            // override-container-name
-            .mockReturnValueOnce(null)                                        // override command
+            .mockReturnValueOnce('')                                        // override command
             .mockReturnValueOnce('true');                                     // wait-for-finish
 
         await run();

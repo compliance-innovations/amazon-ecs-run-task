@@ -158,7 +158,6 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             count: '1',
             startedBy: 'amazon-ecs-run-task-for-github-actions'
-
         });
         expect(mockEcsWaiter).toHaveBeenCalledTimes(1);
         expect(core.setOutput).toBeCalledWith('task-arn', ['arn:aws:ecs:fake-region:account_id:task/arn']);

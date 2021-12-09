@@ -22,6 +22,10 @@ inputs:
   wait-for-minutes:
     description: 'How long to wait for the task reach stopped state, in minutes (default: 30 minutes, max: 6 hours).'
     required: false
+  custom-args:
+    description: 'JSON formatted string containing custom arguments for the AWS ECS run-task command'
+    required: false
+
 outputs:
   task-definition-arn:
     description: 'The ARN of the registered ECS task definition'
